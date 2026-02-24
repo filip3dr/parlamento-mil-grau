@@ -1,0 +1,47 @@
+name: Atualizar Dados Parlamentares Diariamente
+
+# Quando esse robô vai rodar?
+on:
+  schedule:
+    # Roda todo dia às 06:00 UTC (que dá umas 03:00 da madrugada no Brasil)
+    - cron: '0 6 * * *'
+  # Isso cria um botão mágico no GitHub para você rodar manualmente quando quiser!
+  workflow_dispatch: 
+
+jobs:
+  atualizar_csvs:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. O robô da nuvem baixa os arquivos do seu repositório
+    - name: Clonar o repositório
+      uses: actions/checkout@v4
+
+    # 2. Ele instala o Python na máquina virtual
+    - name: Configurar o Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    # 3. Ele lê o seu requirements.txt para instalar o pandas, requests, etc.
+    - name: Instalar bibliotecas
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    # 4. Ele roda o robô das despesas
+    - name: Rodar Robô de Notas Fiscais (Ranking)
+      run: python robo_ranking.py
+
+    # 5. Ele roda o robô dos salários
+    - name: Rodar Robô de Salários
+      run: python robo_salarios.py
+
+    # 6. Ele pega os CSVs novos gerados e salva de volta no GitHub
+    - name: Salvar e Enviar os novos CSVs (Commit & Push)
+      run: |
+        git config --global user.name "Robô Mil Grau"
+        git config --global user.email "actions@github.com"
+        git add *.csv
+        git diff --quiet && git diff --staged --quiet || git commit -m "🤖 Atualização diária automática dos dados da Câmara"
+        git push
