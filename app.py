@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import datetime
+from PIL import Image
 from api import carregar_votacoes_nominais, carregar_votos, carregar_detalhes_votacao, carregar_ranking_gastos, carregar_resumo_geral
 
 # ==========================================
@@ -61,25 +62,25 @@ st.markdown("""
 # ==========================================
 # CÁLCULO AUTOMÁTICO DO PERÍODO
 # ==========================================
-meses_pt = {1: 'Jan', 2: 'Fev', 3: 'Mar', 4: 'Abr', 5: 'Mai', 6: 'Jun', 7: 'Jul', 8: 'Ago', 9: 'Set', 10: 'Out', 11: 'Nov', 12: 'Dez'}
-hoje = datetime.date.today()
-# ==========================================
-# CÁLCULO AUTOMÁTICO DO PERÍODO
-# ==========================================
 hoje = datetime.date.today()
 meses_pt = {1: 'Jan', 2: 'Fev', 3: 'Mar', 4: 'Abr', 5: 'Mai', 6: 'Jun', 7: 'Jul', 8: 'Ago', 9: 'Set', 10: 'Out', 11: 'Nov', 12: 'Dez'}
 
 # Atualizamos a tag para refletir o Acumulado de 2025 + 2026
 ano_passado = hoje.year - 1
 periodo_apuracao = f"{ano_passado} a {meses_pt[hoje.month]}/{hoje.year}"
+
 # ==========================================
 # SIDEBAR
 # ==========================================
 with st.sidebar:
     c1, c_logo, c2 = st.columns([1, 1.5, 1])
     with c_logo:
-        try: st.image("logo2.png", use_container_width=True)
-        except: st.warning("⚠️ logo2.png não encontrado")
+        try: 
+            img_sidebar = Image.open("logo2.png")
+            st.image(img_sidebar, use_container_width=True)
+        except Exception as e: 
+            st.warning(f"⚠️ logo2 não encontrado: {e}")
+            
     st.markdown("<h4 style='text-align: center; color: #003399;'>Monitoramento</h4>", unsafe_allow_html=True)
 
 # ==========================================
@@ -88,8 +89,12 @@ with st.sidebar:
 st.markdown('<div class="main-header">', unsafe_allow_html=True)
 c1, c_mid, c2 = st.columns([2, 1, 2])
 with c_mid:
-    try: st.image("logo.png", use_container_width=True)
-    except: st.error("⚠️ logo.png não encontrado.")
+    try: 
+        img_main = Image.open("logo.png")
+        st.image(img_main, use_container_width=True)
+    except Exception as e: 
+        st.error(f"⚠️ logo não encontrado: {e}")
+        
 st.markdown("<p style='text-align: center; color: #666;'>O extrato real do dinheiro público em Brasília.</p>", unsafe_allow_html=True)
 st.markdown('</div>', unsafe_allow_html=True)
 
@@ -150,7 +155,7 @@ if not ranking.empty:
             # O valor gigante
             st.markdown(f"Total: <span style='font-size:2.2rem; color:#d32f2f; font-weight:bold;'>{top_1['Gasto_Formatado']}</span>", unsafe_allow_html=True)
             
-            # A explicação exata para calar os críticos (usando a nossa variável automática)
+            # A explicação exata para calar os críticos
             st.markdown(f"<p style='color: #666; font-size: 0.9rem; margin-top: -10px;'><em>*Refere-se exclusivamente à soma de todas as notas fiscais declaradas de {periodo_apuracao}. Não inclui salários oficiais.</em></p>", unsafe_allow_html=True)
 
     # ==========================================
